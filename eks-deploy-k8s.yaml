@@ -4,7 +4,7 @@ metadata:
   labels:
     app: springboot-app
   name: springboot-app-deployment
-  namespace: dev
+  # namespace: dev
 spec:
   replicas: 4
   selector:
@@ -32,7 +32,7 @@ metadata:
     app: springboot-app
     k8s-app: springboot-app
   name: springboot-service
-  namespace: dev
+  # namespace: dev
 spec:
   ports:
   - name: http
