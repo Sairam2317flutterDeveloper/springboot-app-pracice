@@ -27,7 +27,6 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-namespace: dev
 metadata:
   labels:
     app: springboot-app
