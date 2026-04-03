@@ -20,7 +20,7 @@ spec:
         image: 312272890910.dkr.ecr.ap-south-2.amazonaws.com/my-app:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8084
+        - containerPort: 8085
           name: http
           protocol: TCP
 # service type loadbalancer       
