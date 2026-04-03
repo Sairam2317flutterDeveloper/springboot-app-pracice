@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "M3"
+    }
+    environment {
+        AWS_REGION ="ap-south-2"
+        ECR_REPO="312272890910.dkr.ecr.ap-south-2.amazonaws.com/my-app"
+        IMAGE_TAG="latest"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                // Get some code from a GitHub repository
+                git branch : "main",
+                url: "https://github.com/Sairam2317flutterDeveloper/springboot-app-pracice.git"
+
+            }
+        }
+        stage("mvn build"){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        
+        stage('Login to ECR') {
+    steps {
+        withCredentials([[
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-creds'
+        ]]) {
+            sh '''
+            aws ecr get-login-password --region ap-south-2 | \
+            docker login --username AWS --password-stdin 312272890910.dkr.ecr.ap-south-2.amazonaws.com
+            '''
+        }
+    }
+    
+}
+stage(" build docker image"){
+            steps{
+                sh "docker build -t my-app ."
+            }
+        }
+stage("docker image push"){
+        steps{
+            sh "docker tag my-app:latest 312272890910.dkr.ecr.ap-south-2.amazonaws.com/my-app:latest"
+            sh "docker push 312272890910.dkr.ecr.ap-south-2.amazonaws.com/my-app:latest"
+        }
+    }
+    stage('Deploy to EKS') {
+    steps {
+        withCredentials([[
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-creds'
+        ]]) {
+            sh '''
+            aws eks update-kubeconfig --region $AWS_REGION --name ekswithsairam
+            kubectl apply -f  eks-deploy-k8s.yaml
+
+            '''
+        }
+    }
+}
+    }
+}
